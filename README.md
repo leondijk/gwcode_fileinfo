@@ -6,11 +6,6 @@ v1.0.1
 
 Get information about files on your server.
 
-### TODO
-
-* Create add-on pages on gwcode.com
-* Add to devot-ee.com
-
 ### Documentation
 
 For full documentation and examples, please visit:  
