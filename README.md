@@ -1,14 +1,13 @@
 # GWcode FileInfo
 ## Free plugin for ExpressionEngine 2.0+
 #### By Leon Dijk - [@GWcode](http://twitter.com/#!/gwcode)
-v1.0.0
+v1.0.1
 ### Description
 
 Get information about files on your server.
 
 ### TODO
 
-* When base_url() equals www.domain.tld and the file or directory parameter values contain a URL without the www, it doesn't match even though it should (lines 78, 116).
 * Create add-on pages on gwcode.com
 * Add to devot-ee.com
 
