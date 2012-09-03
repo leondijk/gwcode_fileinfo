@@ -12,7 +12,7 @@ if(!defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
 	'pi_name'			=> 'GWcode FileInfo',
-	'pi_version'		=> '1.0.0',
+	'pi_version'		=> '1.0.1',
 	'pi_author'			=> 'Leon Dijk',
 	'pi_author_url'		=> 'http://gwcode.com',
 	'pi_description'	=> 'Get information about files on your server.',
@@ -74,15 +74,15 @@ class Gwcode_fileinfo {
 		if(strpos($file, '://') !== false) { // the file value is a URL
 			// check if domain from site is equal to domain in the file URL
 			$site_url_parsed = parse_url(base_url());
-	    	$file_url_parsed = parse_url($file);
-	    	if($site_url_parsed['host'] != $file_url_parsed['host']) {
+			$file_url_parsed = parse_url($file);
+			if(!$this->_equal_domains($site_url_parsed['host'], $file_url_parsed['host'])) {
 				$this->EE->TMPL->log_item('Error: the domain in the "file" parameter value appears to be a remote URL.');
 				return;
-	    	}
+			}
 
-	    	$fulldomain = $file_url_parsed['scheme'].'://'.$file_url_parsed['host'];
-	    	$file_relative_from_docroot = str_replace($fulldomain, '', $file); // example contents: /media/image.jpg
-   			$file_full_path = ($file_relative_from_docroot{0} == '/') ? $this->docroot_path.$file_relative_from_docroot : $this->docroot_path.'/'.$file_relative_from_docroot;
+			$fulldomain = $file_url_parsed['scheme'].'://'.$file_url_parsed['host'];
+			$file_relative_from_docroot = str_replace($fulldomain, '', $file); // example contents: /media/image.jpg
+			$file_full_path = ($file_relative_from_docroot{0} == '/') ? $this->docroot_path.$file_relative_from_docroot : $this->docroot_path.'/'.$file_relative_from_docroot;
 		}
 		elseif(strpos($file, $this->docroot_path) !== false) { // the file value is a full server path
 			$file_full_path = $file;
@@ -112,15 +112,15 @@ class Gwcode_fileinfo {
 		if(strpos($directory, '://') !== false) { // the directory value is a URL
 			// check if domain from site is equal to domain in the directory URL
 			$site_url_parsed = parse_url(base_url());
-	    	$directory_url_parsed = parse_url($directory);
-	    	if($site_url_parsed['host'] != $directory_url_parsed['host']) {
+			$directory_url_parsed = parse_url($directory);
+			if(!$this->_equal_domains($site_url_parsed['host'], $directory_url_parsed['host'])) {
 				$this->EE->TMPL->log_item('Error: the domain in the "directory" parameter value appears to be a remote URL.');
 				return;
-	    	}
+			}
 
-	    	$fulldomain = $directory_url_parsed['scheme'].'://'.$directory_url_parsed['host'];
-	    	$directory_relative_from_docroot = str_replace($fulldomain, '', $directory); // example contents: /media/image.jpg
-   			$directory_full_path = ($directory_relative_from_docroot{0} == '/') ? $this->docroot_path.$directory_relative_from_docroot : $this->docroot_path.'/'.$directory_relative_from_docroot;
+			$fulldomain = $directory_url_parsed['scheme'].'://'.$directory_url_parsed['host'];
+			$directory_relative_from_docroot = str_replace($fulldomain, '', $directory); // example contents: /media/image.jpg
+			$directory_full_path = ($directory_relative_from_docroot{0} == '/') ? $this->docroot_path.$directory_relative_from_docroot : $this->docroot_path.'/'.$directory_relative_from_docroot;
 		}
 		elseif(strpos($directory, $this->docroot_path) !== false) { // the file value is a full server path
 			$directory_full_path = $directory;
@@ -193,6 +193,17 @@ class Gwcode_fileinfo {
 	 */
 	private function _is_image($mime) {
 		return (strpos($mime, 'image') !== false) ? true : false;
+	}
+
+	/**
+	 * Check if 2 domains without www match (ie, www.domain.tld will match domain.tld, but not differentdomain.tld)
+	 * @param string $domain1, $domain2
+	 * @return bool
+	 */
+	private function _equal_domains($domain1, $domain2) {
+		$domain1 = preg_replace('#^www\.(.+\.)#i', '$1', $domain1);
+		$domain2 = preg_replace('#^www\.(.+\.)#i', '$1', $domain2);
+		return ($domain1 == $domain2);
 	}
 
 	/**
