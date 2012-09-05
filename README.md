@@ -1,7 +1,7 @@
 # GWcode FileInfo
 ## Free plugin for ExpressionEngine 2.0+
 #### By Leon Dijk - [@GWcode](http://twitter.com/#!/gwcode)
-v1.0.2
+v1.0.3
 ### Description
 
 Get information about files on your server.
@@ -21,7 +21,7 @@ For full documentation and examples, please visit:
 ###### 1. Get information about a single file
 
 	{exp:gwcode_fileinfo:single file="/media/myimage.jpg"}
-		{if no_results}File not found!{/if}
+		{if file_not_found}The file couldn't be found!{/if}
 		File full path: {file_fullpath}<br />
 		File URL: {file_url}<br />
 		File name: {file_name}<br />
@@ -87,6 +87,37 @@ For full documentation and examples, please visit:
 		{/if}
 		<br />
 	{/exp:gwcode_fileinfo:multiple}
+
+###### 3. Get information about files stored in a matrix field
+
+	{exp:channel:entries channel="my_channel" limit="1"}
+		<h3>{title}</h3>
+		<h4>Files stored in our matrix field (cf_matrix_gallery):</h4>
+		{cf_matrix_gallery}
+			{exp:gwcode_fileinfo:single file="{cf_matrix_gallery_yourmatrixcolumn}"}
+				{if file_not_found}The file "{cf_matrix_gallery_yourmatrixcolumn}" could not be found!{/if}
+				File full path: {file_fullpath}<br />
+				File URL: {file_url}<br />
+				File name: {file_name}<br />
+				File basename: {file_basename}<br />
+				File extension: {file_extension}<br />
+				File extension mime: {file_extension_mime}<br />
+				File size in bytes: {file_size_bytes}<br />
+				File size formatted: {file_size_formatted}<br />
+				File symbolic permissions: {file_symbolic_permissions}<br />
+				File octal permissions: {file_octal_permissions}<br />
+				File is image: {if file_is_image}Yes{if:else}No{/if}<br />
+				{if file_is_image}
+					Image width: {image_width}<br />
+					Image height: {image_height}<br />
+					Image bits: {image_bits}<br />
+					Image channels: {image_channels}<br />
+					Image mime: {image_mime}<br />
+				{/if}
+			{/exp:gwcode_fileinfo:single}
+			<br />
+		{/cf_matrix_gallery}
+	{/exp:channel:entries}
 
 ### Support and Feature Requests
 Please post on the @devot_ee forums:  

@@ -12,7 +12,7 @@ if(!defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
 	'pi_name'			=> 'GWcode FileInfo',
-	'pi_version'		=> '1.0.2',
+	'pi_version'		=> '1.0.3',
 	'pi_author'			=> 'Leon Dijk',
 	'pi_author_url'		=> 'http://gwcode.com',
 	'pi_description'	=> 'Get information about files on your server.',
@@ -47,6 +47,7 @@ class Gwcode_fileinfo {
 
 	public function __construct() {
 		$this->EE =& get_instance();
+		$this->_prep_no_results(); // prepares our own custom no_results block: file_not_found
 		$this->tagdata = $this->EE->TMPL->tagdata;
 
 		// load CI and the helpers we need
@@ -64,7 +65,6 @@ class Gwcode_fileinfo {
 	 * Possible parameters: file
 	 */
 	public function single() {
-
 		$file = trim($this->EE->TMPL->fetch_param('file'));
 		if(empty($file)) {
 			$this->EE->TMPL->log_item('Error: the "file" parameter value is required.');
@@ -91,9 +91,11 @@ class Gwcode_fileinfo {
 			$file_full_path = ($file{0} == '/') ? $this->docroot_path.$file : $this->docroot_path.'/'.$file;
 		}
 
-		// now that we have the full path to the file, get all the information we need!
+		// now that we have the full path to the file and the file exists, get all the information we need!
 		$var_values_arr = $this->_get_file_info($file_full_path);
-
+		if(!$var_values_arr) {
+			return $this->EE->TMPL->no_results();
+		}
 		return $this->EE->TMPL->parse_variables_row($this->tagdata, $var_values_arr);
 	}
 
@@ -158,7 +160,7 @@ class Gwcode_fileinfo {
 		// get some basic file info with the CI file helper
 		$file_info_arr = get_file_info($file_full_path, array('name', 'server_path', 'size', 'date', 'fileperms'));
 		if(!$file_info_arr) { // file not found
-			return $this->EE->TMPL->no_results();
+			return false;
 		}
 
 		// add file information
@@ -222,6 +224,32 @@ class Gwcode_fileinfo {
 	}
 
 	/**
+	 * Sadly, using {if no_results} doesn't work when nesting GWcode FileInfo in a matrix tag for example due to a bug in EE's template parser.
+	 * So instead, we're going to use a custom no_results block, file_not_found, which will act the same as no_results.
+	 * Usage: {if file_not_found}The file couldn't be found!{/if}
+	 * See http://experienceinternet.co.uk/blog/ee-gotchas-nested-no-results-tags-redux/
+	 */
+	private function _prep_no_results() {
+		// Shortcut to tagdata
+		$td =& $this->EE->TMPL->tagdata;
+		$open  = 'if file_not_found';
+		$close = '/if';
+
+		// Check if there is a custom no_results conditional
+		if(strpos($td, $open) !== FALSE && preg_match('#' .LD .$open .RD .'(.*?)' .LD .$close .RD .'#s', $td, $match)) {
+			$this->EE->TMPL->log_item("Prepping {$open} conditional");
+			// Check if there are conditionals inside of that
+			if(stristr($match[1], LD.'if')) {
+				$match[0] = $this->EE->functions->full_tag($match[0], $td, LD.'if', LD.'\/if'.RD);
+			}
+			// Set template's no_results data to found chunk
+			$this->EE->TMPL->no_results = substr($match[0], strlen(LD.$open.RD), -strlen(LD.$close.RD));
+			// Remove no_results conditional from tagdata
+			$td = str_replace($match[0], '', $td);
+		}
+	}
+
+	/**
 	 * Describes how the plugin is used.
 	 */
 	public function usage() {
@@ -230,7 +258,7 @@ class Gwcode_fileinfo {
 ###### 1. Get information about a single file
 
 	{exp:gwcode_fileinfo:single file="/media/image.jpg"}
-		{if no_results}File not found!{/if}
+		{if file_not_found}The file couldn't be found!{/if}
 		File full path: {file_fullpath}<br />
 		File URL: {file_url}<br />
 		File name: {file_name}<br />
