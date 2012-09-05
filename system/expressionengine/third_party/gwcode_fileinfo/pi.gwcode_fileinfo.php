@@ -12,7 +12,7 @@ if(!defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
 	'pi_name'			=> 'GWcode FileInfo',
-	'pi_version'		=> '1.0.1',
+	'pi_version'		=> '1.0.2',
 	'pi_author'			=> 'Leon Dijk',
 	'pi_author_url'		=> 'http://gwcode.com',
 	'pi_description'	=> 'Get information about files on your server.',
@@ -156,7 +156,7 @@ class Gwcode_fileinfo {
 		$var_values_arr = $this->var_values_arr;
 
 		// get some basic file info with the CI file helper
-		$file_info_arr = get_file_info($file_full_path);
+		$file_info_arr = get_file_info($file_full_path, array('name', 'server_path', 'size', 'date', 'fileperms'));
 		if(!$file_info_arr) { // file not found
 			return $this->EE->TMPL->no_results();
 		}
@@ -171,6 +171,8 @@ class Gwcode_fileinfo {
 		$var_values_arr['file_basename'] = $filename_parsed['filename'];
 		$var_values_arr['file_extension'] = $filename_parsed['extension'];
 		$var_values_arr['file_extension_mime'] = get_mime_by_extension($file_full_path); // if for example a .jpg file has been renamed to .gif, this value will be 'image/gif'
+		$var_values_arr['file_symbolic_permissions'] = symbolic_permissions($file_info_arr['fileperms']);
+		$var_values_arr['file_octal_permissions'] = octal_permissions($file_info_arr['fileperms']);
 
 		// add image information
 		if($this->_is_image($var_values_arr['file_extension_mime'])) {
@@ -237,6 +239,8 @@ class Gwcode_fileinfo {
 		File extension mime: {file_extension_mime}<br />
 		File size in bytes: {file_size_bytes}<br />
 		File size formatted: {file_size_formatted}<br />
+		File symbolic permissions: {file_symbolic_permissions}<br />
+		File octal permissions: {file_octal_permissions}<br />
 		File is image: {if file_is_image}Yes{if:else}No{/if}<br />
 		{if file_is_image}
 			Image width: {image_width}<br />
@@ -261,6 +265,8 @@ class Gwcode_fileinfo {
 		File extension mime: {file_extension_mime}<br />
 		File size in bytes: {file_size_bytes}<br />
 		File size formatted: {file_size_formatted}<br />
+		File symbolic permissions: {file_symbolic_permissions}<br />
+		File octal permissions: {file_octal_permissions}<br />
 		File is image: {if file_is_image}Yes{if:else}No{/if}<br />
 		{if file_is_image}
 			Image width: {image_width}<br />
