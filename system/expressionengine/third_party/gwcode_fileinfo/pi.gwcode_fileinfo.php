@@ -12,9 +12,9 @@ if(!defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
 	'pi_name'			=> 'GWcode FileInfo',
-	'pi_version'		=> '1.0.3',
+	'pi_version'		=> '1.0.4',
 	'pi_author'			=> 'Leon Dijk',
-	'pi_author_url'		=> 'http://gwcode.com',
+	'pi_author_url'		=> 'http://gwcode.com/add-ons/gwcode-fileinfo',
 	'pi_description'	=> 'Get information about files on your server.',
 	'pi_usage'			=> gwcode_fileinfo::usage()
 );
@@ -22,6 +22,7 @@ $plugin_info = array(
 class Gwcode_fileinfo {
 	private $tagdata = '';
 	private $docroot_path = '';
+	private $var_prefix = '';
 
 	// create the var_values_arr array that holds the information we need for a file
 	private $var_values_arr = array(
@@ -33,6 +34,8 @@ class Gwcode_fileinfo {
 		'file_extension_mime' => '',
 		'file_size_bytes' => '',
 		'file_size_formatted' => '',
+		'file_symbolic_permissions' => '',
+		'file_octal_permissions' => '',
 		'file_is_image' => false,
 		'image_width' => '',
 		'image_height' => '',
@@ -47,6 +50,8 @@ class Gwcode_fileinfo {
 
 	public function __construct() {
 		$this->EE =& get_instance();
+		$this->var_prefix = $this->EE->TMPL->fetch_param('variable_prefix', '');
+
 		$this->_prep_no_results(); // prepares our own custom no_results block: file_not_found
 		$this->tagdata = $this->EE->TMPL->tagdata;
 
@@ -164,27 +169,27 @@ class Gwcode_fileinfo {
 		}
 
 		// add file information
-		$var_values_arr['file_fullpath'] = $file_full_path;
-		$var_values_arr['file_url'] = rtrim(base_url(), '/').str_replace($this->docroot_path, '', $file_full_path);
-		$var_values_arr['file_name'] = $file_info_arr['name'];
-		$var_values_arr['file_size_bytes'] = $file_info_arr['size'];
-		$var_values_arr['file_size_formatted'] = $this->_filesize_format($file_info_arr['size']);
+		$var_values_arr[$this->var_prefix.'file_fullpath'] = $file_full_path;
+		$var_values_arr[$this->var_prefix.'file_url'] = rtrim(base_url(), '/').str_replace($this->docroot_path, '', $file_full_path);
+		$var_values_arr[$this->var_prefix.'file_name'] = $file_info_arr['name'];
 		$filename_parsed = pathinfo($file_info_arr['name']);
-		$var_values_arr['file_basename'] = $filename_parsed['filename'];
-		$var_values_arr['file_extension'] = $filename_parsed['extension'];
-		$var_values_arr['file_extension_mime'] = get_mime_by_extension($file_full_path); // if for example a .jpg file has been renamed to .gif, this value will be 'image/gif'
-		$var_values_arr['file_symbolic_permissions'] = symbolic_permissions($file_info_arr['fileperms']);
-		$var_values_arr['file_octal_permissions'] = octal_permissions($file_info_arr['fileperms']);
+		$var_values_arr[$this->var_prefix.'file_basename'] = $filename_parsed['filename'];
+		$var_values_arr[$this->var_prefix.'file_extension'] = $filename_parsed['extension'];
+		$var_values_arr[$this->var_prefix.'file_extension_mime'] = get_mime_by_extension($file_full_path); // if for example a .jpg file has been renamed to .gif, this value will be 'image/gif'
+		$var_values_arr[$this->var_prefix.'file_size_bytes'] = $file_info_arr['size'];
+		$var_values_arr[$this->var_prefix.'file_size_formatted'] = $this->_filesize_format($file_info_arr['size']);
+		$var_values_arr[$this->var_prefix.'file_symbolic_permissions'] = symbolic_permissions($file_info_arr['fileperms']);
+		$var_values_arr[$this->var_prefix.'file_octal_permissions'] = octal_permissions($file_info_arr['fileperms']);
 
 		// add image information
-		if($this->_is_image($var_values_arr['file_extension_mime'])) {
-			$var_values_arr['file_is_image'] = true;
+		if($this->_is_image($var_values_arr[$this->var_prefix.'file_extension_mime'])) {
+			$var_values_arr[$this->var_prefix.'file_is_image'] = true;
 			$imagesize_arr = getimagesize($file_full_path);
-			$var_values_arr['image_width'] = $imagesize_arr[0];
-			$var_values_arr['image_height'] = $imagesize_arr[1];
-			$var_values_arr['image_bits'] = $imagesize_arr['bits'];
-			$var_values_arr['image_channels'] = $imagesize_arr['channels'];
-			$var_values_arr['image_mime'] = $imagesize_arr['mime']; // if for example a .jpg file has been renamed to .gif, this value will be 'image/jpeg' (ie, the real mime type)
+			$var_values_arr[$this->var_prefix.'image_width'] = $imagesize_arr[0];
+			$var_values_arr[$this->var_prefix.'image_height'] = $imagesize_arr[1];
+			$var_values_arr[$this->var_prefix.'image_bits'] = $imagesize_arr['bits'];
+			$var_values_arr[$this->var_prefix.'image_channels'] = $imagesize_arr['channels'];
+			$var_values_arr[$this->var_prefix.'image_mime'] = $imagesize_arr['mime']; // if for example a .jpg file has been renamed to .gif, this value will be 'image/jpeg' (ie, the real mime type)
 		}
 
 		return $var_values_arr;
@@ -232,7 +237,7 @@ class Gwcode_fileinfo {
 	private function _prep_no_results() {
 		// Shortcut to tagdata
 		$td =& $this->EE->TMPL->tagdata;
-		$open  = 'if file_not_found';
+		$open  = 'if '.$this->var_prefix.'file_not_found';
 		$close = '/if';
 
 		// Check if there is a custom no_results conditional
@@ -258,7 +263,7 @@ class Gwcode_fileinfo {
 ###### 1. Get information about a single file
 
 	{exp:gwcode_fileinfo:single file="/media/image.jpg"}
-		{if file_not_found}The file couldn't be found!{/if}
+		{if file_not_found}The file couldn't be found!<br />{/if}
 		File full path: {file_fullpath}<br />
 		File URL: {file_url}<br />
 		File name: {file_name}<br />

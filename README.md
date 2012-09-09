@@ -1,7 +1,7 @@
 # GWcode FileInfo
 ## Free plugin for ExpressionEngine 2.0+
-#### By Leon Dijk - [@GWcode](http://twitter.com/#!/gwcode)
-v1.0.3
+#### By Leon Dijk - [@GWcode](http://twitter.com/gwcode)
+v1.0.4
 ### Description
 
 Get information about files on your server.
@@ -21,7 +21,7 @@ For full documentation and examples, please visit:
 ###### 1. Get information about a single file
 
 	{exp:gwcode_fileinfo:single file="/media/myimage.jpg"}
-		{if file_not_found}The file couldn't be found!{/if}
+		{if file_not_found}The file couldn't be found!<br />{/if}
 		File full path: {file_fullpath}<br />
 		File URL: {file_url}<br />
 		File name: {file_name}<br />
@@ -95,7 +95,7 @@ For full documentation and examples, please visit:
 		<h4>Files stored in our matrix field (cf_matrix_gallery):</h4>
 		{cf_matrix_gallery}
 			{exp:gwcode_fileinfo:single file="{cf_matrix_gallery_yourmatrixcolumn}"}
-				{if file_not_found}The file "{cf_matrix_gallery_yourmatrixcolumn}" could not be found!{/if}
+				{if file_not_found}The file "{cf_matrix_gallery_yourmatrixcolumn}" could not be found!<br />{/if}
 				File full path: {file_fullpath}<br />
 				File URL: {file_url}<br />
 				File name: {file_name}<br />
@@ -120,8 +120,7 @@ For full documentation and examples, please visit:
 	{/exp:channel:entries}
 
 ### Support and Feature Requests
-Please post on the @devot_ee forums:  
-[http://devot-ee.com/add-ons/gwcode-fileinfo/](http://devot-ee.com/add-ons/gwcode-fileinfo/)
+[http://gwcode.com/add-ons/gwcode-fileinfo/support](http://gwcode.com/add-ons/gwcode-fileinfo/support)
 
 ### License
 This plugin is licensed under The BSD 3-Clause License:  
