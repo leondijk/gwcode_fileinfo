@@ -12,7 +12,7 @@ if(!defined('BASEPATH')) exit('No direct script access allowed');
 
 $plugin_info = array(
 	'pi_name'			=> 'GWcode FileInfo',
-	'pi_version'		=> '1.0.4',
+	'pi_version'		=> '1.0.5',
 	'pi_author'			=> 'Leon Dijk',
 	'pi_author_url'		=> 'http://gwcode.com/add-ons/gwcode-fileinfo',
 	'pi_description'	=> 'Get information about files on your server.',
@@ -188,7 +188,7 @@ class Gwcode_fileinfo {
 			$var_values_arr[$this->var_prefix.'image_width'] = $imagesize_arr[0];
 			$var_values_arr[$this->var_prefix.'image_height'] = $imagesize_arr[1];
 			$var_values_arr[$this->var_prefix.'image_bits'] = $imagesize_arr['bits'];
-			$var_values_arr[$this->var_prefix.'image_channels'] = $imagesize_arr['channels'];
+			$var_values_arr[$this->var_prefix.'image_channels'] = (isset($imagesize_arr['channels'])) ? $imagesize_arr['channels'] : false; // for png images, channels will not be set
 			$var_values_arr[$this->var_prefix.'image_mime'] = $imagesize_arr['mime']; // if for example a .jpg file has been renamed to .gif, this value will be 'image/jpeg' (ie, the real mime type)
 		}
 
@@ -279,7 +279,7 @@ class Gwcode_fileinfo {
 			Image width: {image_width}<br />
 			Image height: {image_height}<br />
 			Image bits: {image_bits}<br />
-			Image channels: {image_channels}<br />
+			{if image_channels}Image channels: {image_channels}<br />{/if}
 			Image mime: {image_mime}<br />
 		{/if}
 	{/exp:gwcode_fileinfo:single}
@@ -305,7 +305,7 @@ class Gwcode_fileinfo {
 			Image width: {image_width}<br />
 			Image height: {image_height}<br />
 			Image bits: {image_bits}<br />
-			Image channels: {image_channels}<br />
+			{if image_channels}Image channels: {image_channels}<br />{/if}
 			Image mime: {image_mime}<br />
 		{/if}
 		<br />

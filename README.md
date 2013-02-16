@@ -1,7 +1,7 @@
 # GWcode FileInfo
 ## Free plugin for ExpressionEngine 2.0+
 #### By Leon Dijk - [@GWcode](http://twitter.com/gwcode)
-v1.0.4
+v1.0.5
 ### Description
 
 Get information about files on your server.
@@ -37,7 +37,7 @@ For full documentation and examples, please visit:
 			Image width: {image_width}<br />
 			Image height: {image_height}<br />
 			Image bits: {image_bits}<br />
-			Image channels: {image_channels}<br />
+			{if image_channels}Image channels: {image_channels}<br />{/if}
 			Image mime: {image_mime}<br />
 		{/if}
 	{/exp:gwcode_fileinfo:single}
@@ -82,7 +82,7 @@ For full documentation and examples, please visit:
 			Image width: {image_width}<br />
 			Image height: {image_height}<br />
 			Image bits: {image_bits}<br />
-			Image channels: {image_channels}<br />
+			{if image_channels}Image channels: {image_channels}<br />{/if}
 			Image mime: {image_mime}<br />
 		{/if}
 		<br />
@@ -111,7 +111,7 @@ For full documentation and examples, please visit:
 					Image width: {image_width}<br />
 					Image height: {image_height}<br />
 					Image bits: {image_bits}<br />
-					Image channels: {image_channels}<br />
+					{if image_channels}Image channels: {image_channels}<br />{/if}
 					Image mime: {image_mime}<br />
 				{/if}
 			{/exp:gwcode_fileinfo:single}
@@ -126,5 +126,5 @@ For full documentation and examples, please visit:
 This plugin is licensed under The BSD 3-Clause License:  
 [http://www.opensource.org/licenses/bsd-3-clause](http://www.opensource.org/licenses/bsd-3-clause)
 
-Copyright (c) 2012 Leon Dijk  
+Copyright (c) 2012-2013 Leon Dijk  
 [http://gwcode.com](http://gwcode.com)
