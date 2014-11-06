@@ -257,7 +257,7 @@ class Gwcode_fileinfo {
 	/**
 	 * Describes how the plugin is used.
 	 */
-	public function usage() {
+	public static function usage() {
 		ob_start();
 ?>
 ###### 1. Get information about a single file
